@@ -1240,6 +1240,8 @@ button {
   appearance: none;
   -webkit-appearance: none;
   cursor: pointer;
+  padding-left: 0.75rem;  /* no left icon — override base 2.4rem */
+  padding-right: 2.25rem; /* clearance for the dropdown arrow */
 }
 
 .hero-form__select option {
@@ -3694,10 +3696,286 @@ button {
   }
 }
 
+/* ─── Section 10 — Recruiter Logo Wall ──────────────────────────────────── */
+.recruiter-wall {
+  position: relative;
+  overflow: hidden;
+  margin-top: clamp(1.5rem, 3vw, 2.5rem);
+  padding-block: 0.5rem;
+}
+
+.recruiter-wall::before,
+.recruiter-wall::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.recruiter-wall::before {
+  left: 0;
+  background: linear-gradient(to right, var(--sbihm-cream), transparent);
+}
+
+.recruiter-wall::after {
+  right: 0;
+  background: linear-gradient(to left, var(--sbihm-cream), transparent);
+}
+
+.recruiter-track {
+  display: flex;
+  gap: 1rem;
+  width: max-content;
+  animation: recruiter-scroll 55s linear infinite;
+}
+
+.recruiter-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes recruiter-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.recruiter-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 160px;
+  height: 80px;
+  background: var(--sbihm-paper);
+  border: 1px solid var(--sbihm-line);
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(26, 26, 26, 0.06);
+  transition: box-shadow 0.25s, border-color 0.25s;
+  user-select: none;
+  cursor: default;
+}
+
+.recruiter-card:hover {
+  box-shadow: 0 6px 20px rgba(210, 65, 48, 0.12);
+  border-color: var(--sbihm-red);
+}
+
+.recruiter-card img {
+  max-height: 48px;
+  max-width: 128px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: grayscale(100%);
+  opacity: 0.65;
+  transition: filter 0.3s, opacity 0.3s;
+  display: block;
+}
+
+.recruiter-card:hover img {
+  filter: grayscale(0%);
+  opacity: 1;
+}
+
+.recruiter-note {
+  text-align: center;
+  margin-top: clamp(1.5rem, 3vw, 2rem);
+  font-size: var(--fs-small);
+  color: var(--sbihm-mute);
+  font-style: italic;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recruiter-track {
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: auto;
+  }
+}
+
 /* ─── Misc Body Padding for mobile bottom bar ─────────────────────────────── */
 @media (max-width: 767px) {
   body {
     padding-bottom: 54px;
     /* matches mobile-bottom-cta height */
   }
+}
+
+/* ─── Section 5.5 — Programme Options Cards ──────────────────────────────── */
+.programme-options-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .programme-options-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1100px) {
+  .programme-options-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.prog-card {
+  position: relative;
+  background: var(--sbihm-paper);
+  border: 1px solid var(--sbihm-line);
+  border-radius: 12px;
+  padding: 1.75rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
+}
+
+.prog-card:hover {
+  box-shadow: var(--sbihm-shadow);
+  transform: translateY(-3px);
+}
+
+.prog-card--flagship {
+  border-color: var(--sbihm-red);
+  box-shadow: 0 4px 24px rgba(210, 65, 48, 0.1);
+}
+
+.prog-card--flagship:hover {
+  box-shadow: 0 10px 36px rgba(210, 65, 48, 0.2);
+}
+
+.prog-card__ribbon {
+  position: absolute;
+  top: -1px;
+  right: 1.25rem;
+  background: var(--sbihm-red);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0 0 6px 6px;
+}
+
+.prog-card__badge {
+  display: inline-flex;
+  align-items: center;
+  background: var(--sbihm-red-soft);
+  color: var(--sbihm-red-dark);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.prog-card--flagship .prog-card__badge {
+  background: var(--sbihm-red);
+  color: #fff;
+}
+
+.prog-card__title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--sbihm-black);
+  line-height: 1.3;
+}
+
+.prog-card__fee {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--sbihm-red);
+  line-height: 1;
+}
+
+.prog-card__eligibility {
+  font-size: 0.8rem;
+  color: var(--sbihm-mute);
+}
+
+.prog-card__note {
+  font-size: 0.875rem;
+  color: var(--sbihm-charcoal);
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+.prog-card__cta {
+  margin-top: 0.25rem;
+  width: 100%;
+  justify-content: center;
+  font-size: 0.875rem;
+  padding: 0.6rem 1rem;
+}
+
+/* ─── Fees: all-programme summary table ──────────────────────────────────── */
+.fees-summary-wrap {
+  margin-bottom: 2.5rem;
+}
+
+.fees-summary__note {
+  margin-top: 0.5rem;
+  font-size: var(--fs-small);
+  color: var(--sbihm-mute);
+  font-style: italic;
+}
+
+@media (max-width: 640px) {
+  .fees-table--summary {
+    font-size: 0.8rem;
+  }
+
+  .fees-table--summary td,
+  .fees-table--summary th {
+    padding: 0.5rem;
+  }
+}
+
+/* ─── Brochure gate: hero form pulse + bottom toast ─────────────────────── */
+@keyframes form-pulse-anim {
+  0%   { box-shadow: 0 0 0 0 rgba(210, 65, 48, 0.5); }
+  50%  { box-shadow: 0 0 0 10px rgba(210, 65, 48, 0.12); }
+  100% { box-shadow: 0 0 0 0 rgba(210, 65, 48, 0); }
+}
+
+.form-pulse {
+  animation: form-pulse-anim 0.7s ease 3;
+  border-radius: 12px;
+}
+
+#gurukul-toast {
+  position: fixed;
+  bottom: 5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(0.75rem);
+  background: var(--sbihm-black);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: var(--fs-small);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: var(--sbihm-shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
+  white-space: nowrap;
+  z-index: 9999;
+}
+
+#gurukul-toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }

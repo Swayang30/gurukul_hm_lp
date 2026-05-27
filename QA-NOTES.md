@@ -31,7 +31,7 @@ Generated: 2026-05-27 | Conversion from SBIHM BHM landing page
 
 | Item Removed | Original Location | Reason |
 |---|---|---|
-| Recruiter logo wall (Taj, ITC, JW Marriott, Hyatt, Oberoi, Radisson, Leela, Hilton, Pride, Crown Plaza, Carnival, Apollo, Fortis, IndiGo, Akasa, Ginger, Vivanta, HRC, WW, The Park) | Section 10 — Partners | Gurukul has no published recruiter tie-ups; displaying these brands would be false advertising |
+| ~~Recruiter logo wall (Taj, ITC, JW Marriott, Hyatt, Oberoi, Radisson, Leela, Hilton, Pride, Crown Plaza, Carnival, Apollo, Fortis, IndiGo, Akasa, Ginger, Vivanta, HRC, WW, The Park)~~ | Section 10 — Partners | **RESTORED 2026-05-27** — Client approved all 20 as verified recruiting partners. Scrolling marquee wall reinstated. |
 | Placement salary stats (₹16.4 LPA top, ₹3.2–16.4 LPA average, Median ₹4.8 LPA) | Section 9 — Careers aside | Gurukul has not published placement figures |
 | Celebrity attributions (Sanjeev Kapoor, Ranveer Brar, Kapil Dev, Sunil Gavaskar, Brett Lee, Times of India, ABP News, Zee 24 Ghanta) | Section 7 — Awards | None of these apply to Gurukul |
 | 5 excess award cards (SBIHM had 9; Gurukul has 4 Award*.png files) | Section 7 — Awards | Only 4 Award PNG files exist; 3 known Gurukul award titles + 1 flagged |
@@ -92,7 +92,7 @@ Generated: 2026-05-27 | Conversion from SBIHM BHM landing page
 | 7 | **Eligibility criteria** | Confirm admission eligibility for the Hotel & Hospitality Management programme |
 | 8 | **Award 4 title** | Supply the award name/title for `Award4.png` |
 | 9 | **Awards verifiability** | If the 3 named Gurukul awards are publicly verifiable, the section heading can be strengthened back to SBIHM's original stronger phrasing |
-| 10 | **Recruiter partnerships** | If Gurukul has genuine, documented hospitality recruiter partnerships, supply verified logo list/files to reinstate the partners grid |
+| ~~10~~ | ~~**Recruiter partnerships**~~ | **RESOLVED 2026-05-27** — Client approved all 20 partners. Marquee grid restored in Section 10. |
 | 11 | **Student testimonials** | Supply 6 real Gurukul student names, batch years, placements, and quotes |
 | 12 | **Gurukul campus/lab photos** | Supply 5 genuine Gurukul campus/lab photos to replace `photo1.png`–`photo5.png` |
 | 13 | **Footer banner image** | Supply a Gurukul-branded banner to replace the SBIHM footer banner |

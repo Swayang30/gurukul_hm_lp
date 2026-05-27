@@ -181,7 +181,7 @@
         </ul>
       </nav>
       <div class="site-header__actions">
-        <button class="btn btn--text" id="brochure-trigger" aria-haspopup="dialog">Download Brochure</button>
+        <button class="btn btn--text" id="brochure-trigger" data-brochure-download>Download Brochure</button>
         <a href="#apply" class="btn btn--gold" data-track="apply_cta_click" data-cta-location="header">Apply Now</a>
       </div>
       <button class="hamburger" id="hamburger" aria-expanded="false" aria-controls="mobile-drawer"
@@ -215,7 +215,7 @@
         </ul>
       </nav>
       <div class="mobile-drawer__ctas">
-        <button class="btn btn--outline-red btn--full" id="brochure-trigger-mobile">Download Brochure</button>
+        <button class="btn btn--outline-red btn--full" id="brochure-trigger-mobile" data-brochure-download>Download Brochure</button>
         <a href="#apply" class="btn btn--gold btn--full" data-track="apply_cta_click"
           data-cta-location="mobile-drawer">Apply Now — 2026 Batch</a>
       </div>
@@ -273,7 +273,7 @@
               data-cta-location="hero-primary">
               Apply Now →
             </a>
-            <button class="btn btn--outline-white btn--large" id="brochure-trigger-hero">
+            <button class="btn btn--outline-white btn--large" id="brochure-trigger-hero" data-brochure-download>
               Download Brochure ↓
             </button>
           </div>
@@ -350,30 +350,22 @@
                   <span class="hero-form__error" id="err-phone" role="alert" aria-live="polite"></span>
                 </div>
 
-                <!-- Preferred Campus -->
-                <div class="hero-form__group" id="field-campus">
-                  <p class="hero-form__label">Preferred Campus <span class="hero-form__req">*</span></p>
-                  <div class="hero-form__checkbox-group">
-                    <label class="hero-form__checkbox-label" for="hf-campus-newtown">
-                      <input type="checkbox" id="hf-campus-newtown" name="campus" value="Main Campus (Kankinara)"
-                        class="hero-form__checkbox">
-                      <span class="hero-form__checkbox-custom"></span>
-                      <span>Main Campus (Kankinara)</span>
-                    </label>
-                    <label class="hero-form__checkbox-label" for="hf-campus-barasat">
-                      <input type="checkbox" id="hf-campus-barasat" name="campus" value="City Office (Bidhannagar)"
-                        class="hero-form__checkbox">
-                      <span class="hero-form__checkbox-custom"></span>
-                      <span>City Office (Bidhannagar)</span>
-                    </label>
-                    <label class="hero-form__checkbox-label" for="hf-campus-nopref">
-                      <input type="checkbox" id="hf-campus-nopref" name="campus" value="No Preference"
-                        class="hero-form__checkbox">
-                      <span class="hero-form__checkbox-custom"></span>
-                      <span>No Preference</span>
-                    </label>
+                <!-- Select Programme -->
+                <div class="hero-form__group" id="field-course-variant">
+                  <label for="hero-course-variant" class="hero-form__label">Select Programme <span class="hero-form__req" aria-hidden="true">*</span></label>
+                  <div class="hero-form__input-wrap hero-form__input-wrap--select">
+                    <select id="hero-course-variant" name="course_variant" class="hero-form__input hero-form__select" required>
+                      <option value="" disabled selected>Choose your programme</option>
+                      <option value="4-Year Honours Degree">4-Year Honours Degree (MAKAUT)</option>
+                      <option value="3-Year Diploma">3-Year Diploma in Hotel &amp; Hospitality Management</option>
+                      <option value="2-Year Advance Diploma">2-Year Advance Diploma</option>
+                      <option value="1-Year Advance Certificate">1-Year Advance Certificate</option>
+                    </select>
+                    <svg class="hero-form__select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" aria-hidden="true">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
                   </div>
-                  <span class="hero-form__error" id="err-campus" role="alert" aria-live="polite"></span>
+                  <span class="hero-form__error" id="err-course-variant" role="alert" aria-live="polite"></span>
                 </div>
 
                 <!-- WhatsApp Opt-in
@@ -442,6 +434,70 @@
         </div>
       </div>
     </div>
+
+    <!-- ===== SECTION 5.5: Programme Options ===== -->
+    <section class="section" id="programmes" aria-labelledby="programmes-headline">
+      <div class="container">
+        <div class="section__header">
+          <h2 class="section__title" id="programmes-headline">
+            Choose Your <span class="text-red">Programme Path</span>
+          </h2>
+          <p class="section__subtitle">Four ways to enter the hospitality industry with Gurukul — from a 1-year certificate to a 4-year Honours degree.</p>
+        </div>
+
+        <div class="programme-options-grid">
+
+          <!-- 4-Year Honours Degree — flagship -->
+          <article class="prog-card prog-card--flagship" aria-label="4-Year Hotel and Hospitality Management Honours Degree">
+            <div class="prog-card__ribbon">Most Popular</div>
+            <div class="prog-card__badge">4 YEARS</div>
+            <h3 class="prog-card__title">Hotel &amp; Hospitality Management — Honours Degree</h3>
+            <div class="prog-card__fee">₹2,40,000</div>
+            <p class="prog-card__eligibility">
+              <!-- [[FLAG: 4-year eligibility not stated by client — confirm before publishing]] -->
+              Eligibility: <em>10+2 any stream, 50%+</em>
+            </p>
+            <p class="prog-card__note">Full Honours degree, MAKAUT-affiliated and AICTE-approved.</p>
+            <button class="btn btn--gold prog-card__cta"
+              onclick="scrollToHeroFormAndSelect('4-Year Honours Degree')">Apply for this Programme</button>
+          </article>
+
+          <!-- 3-Year Diploma -->
+          <article class="prog-card" aria-label="3-Year Diploma in Hotel and Hospitality Management">
+            <div class="prog-card__badge">3 YEARS</div>
+            <h3 class="prog-card__title">Diploma in Hotel &amp; Hospitality Management</h3>
+            <div class="prog-card__fee">₹1,50,000</div>
+            <p class="prog-card__eligibility">Eligibility: Class 10 passed</p>
+            <p class="prog-card__note">Diploma route into hotel operations after Class 10.</p>
+            <button class="btn btn--outline-red prog-card__cta"
+              onclick="scrollToHeroFormAndSelect('3-Year Diploma')">Apply for this Programme</button>
+          </article>
+
+          <!-- 2-Year Advance Diploma -->
+          <article class="prog-card" aria-label="2-Year Advance Diploma in Hotel and Hospitality Management">
+            <div class="prog-card__badge">2 YEARS</div>
+            <h3 class="prog-card__title">Advance Diploma in Hotel &amp; Hospitality Management</h3>
+            <div class="prog-card__fee">₹1,10,000</div>
+            <p class="prog-card__eligibility">Eligibility: Class 10 passed</p>
+            <p class="prog-card__note">Faster entry into the industry with focused practical training.</p>
+            <button class="btn btn--outline-red prog-card__cta"
+              onclick="scrollToHeroFormAndSelect('2-Year Advance Diploma')">Apply for this Programme</button>
+          </article>
+
+          <!-- 1-Year Advance Certificate -->
+          <article class="prog-card" aria-label="1-Year Advance Certificate Course in Hotel Management">
+            <div class="prog-card__badge">1 YEAR</div>
+            <h3 class="prog-card__title">Advance Certificate Course in Hotel Management</h3>
+            <div class="prog-card__fee">₹65,000</div>
+            <p class="prog-card__eligibility">Eligibility: Class 10 passed or appeared</p>
+            <p class="prog-card__note">Quick foundation course in hotel operations.</p>
+            <button class="btn btn--outline-red prog-card__cta"
+              onclick="scrollToHeroFormAndSelect('1-Year Advance Certificate')">Apply for this Programme</button>
+          </article>
+
+        </div>
+      </div>
+    </section>
 
     <!-- ===== SECTION 6: Why GMS? ===== -->
     <section class="section section--cream" id="about" aria-labelledby="about-headline">
@@ -698,7 +754,7 @@
         </div>
 
         <div class="programme-ctas">
-          <button class="btn btn--gold" id="brochure-trigger-programme">Download Full Curriculum PDF ↓</button>
+          <button class="btn btn--gold" id="brochure-trigger-programme" data-brochure-download>Download Full Curriculum PDF ↓</button>
           <a href="#apply" class="btn btn--outline-red" data-track="apply_cta_click"
             data-cta-location="programme-section">Talk to a Counsellor</a>
         </div>
@@ -794,7 +850,6 @@
       </div>
     </section>
 
-    <!-- [[FLAG: Recruiter logos removed — Taj, ITC, JW Marriott, Hyatt, Oberoi, Radisson, Leela, Carnival, Apollo, Fortis, IndiGo, Akasa etc. are SBIHM's claimed partners and do not apply to Gurukul. If Gurukul has genuine, documented hospitality recruiter partnerships, client must supply the verified list/logos to reinstate this section.]] -->
     <!-- ===== SECTION 10: Industry Exposure & Placement Support ===== -->
     <section class="section section--cream" id="partners" aria-labelledby="partners-headline">
       <div class="container">
@@ -804,6 +859,58 @@
           </h2>
           <p class="section__subtitle">Gurukul Management Studies provides 100% job placement assistance with national and international training and placement exposure for hospitality students.</p>
         </div>
+      </div>
+
+      <!-- Recruiter logo wall — client-approved recruiting partners -->
+      <div class="recruiter-wall" aria-label="Recruiting and placement partner organisations">
+        <div class="recruiter-track">
+          <!-- Set 1 of 2 — duplicated below for seamless CSS scroll loop -->
+          <div class="recruiter-card"><img src="assets/images/pllogo/TAJ.jpg" alt="Taj Hotels" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/ITC-HOTELS.jpg" alt="ITC Hotels" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/JW-MARRIOT-scaled.jpg" alt="JW Marriott" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/HAYATT-HOTELS.jpg" alt="Hyatt Hotels" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/OBEROI.jpg" alt="The Oberoi Group" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/RADISSON.jpg" alt="Radisson Hotels" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/THE-LEELA-PALACE.jpg" alt="The Leela Palace" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/hi.svg" alt="Hilton Hotels" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/Logo_of_Pride_Hotels_Group.avif" alt="Pride Hotels Group" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/crown_plaza.svg" alt="Crowne Plaza" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/Carnival.png" alt="Carnival" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/Apollo-Hospitals.png" alt="Apollo Hospitals" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/FORTIS.png" alt="Fortis Healthcare" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/IndiGo_logo_2x.avif" alt="IndiGo" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/Akasa.svg" alt="Akasa Air" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/Ginger_Hotels.svg" alt="Ginger Hotels" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/Vivanta.svg" alt="Vivanta" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/HRC01.png" alt="Hard Rock Cafe" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/WW.svg" alt="WW" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card"><img src="assets/images/pllogo/THE-PARK.jpg" alt="The Park Hotels" loading="lazy" decoding="async"></div>
+          <!-- Set 2 of 2 — duplicate for seamless infinite scroll -->
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/TAJ.jpg" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/ITC-HOTELS.jpg" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/JW-MARRIOT-scaled.jpg" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/HAYATT-HOTELS.jpg" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/OBEROI.jpg" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/RADISSON.jpg" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/THE-LEELA-PALACE.jpg" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/hi.svg" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/Logo_of_Pride_Hotels_Group.avif" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/crown_plaza.svg" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/Carnival.png" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/Apollo-Hospitals.png" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/FORTIS.png" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/IndiGo_logo_2x.avif" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/Akasa.svg" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/Ginger_Hotels.svg" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/Vivanta.svg" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/HRC01.png" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/WW.svg" alt="" loading="lazy" decoding="async"></div>
+          <div class="recruiter-card" aria-hidden="true"><img src="assets/images/pllogo/THE-PARK.jpg" alt="" loading="lazy" decoding="async"></div>
+        </div>
+      </div>
+
+      <div class="container">
+        <p class="recruiter-note">Our graduates are placed across leading hospitality, healthcare, aviation and lifestyle brands nationwide.</p>
       </div>
     </section>
 
@@ -1056,6 +1163,49 @@
           </h2>
           <p class="section__subtitle">Most colleges hide fees until you visit. We don't. Here's exactly what you'll pay
             — and how to fund it.</p>
+        </div>
+
+        <!-- All-programme fee summary -->
+        <div class="fees-summary-wrap">
+          <table class="fees-table fees-table--summary" aria-label="All Gurukul programme fees at a glance">
+            <caption class="fees-table__caption">All Programmes — Fee at a Glance</caption>
+            <thead>
+              <tr>
+                <th scope="col">Programme</th>
+                <th scope="col">Duration</th>
+                <th scope="col">Total Fee</th>
+                <th scope="col">Eligibility</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="fees-table__total">
+                <td><strong>Hotel &amp; Hospitality Management — Honours Degree</strong></td>
+                <td>4 Years (8 Sems.)</td>
+                <td><strong>₹2,40,000</strong></td>
+                <!-- [[FLAG: 4-year eligibility not stated by client — confirm before publishing]] -->
+                <td><em>TBC</em></td>
+              </tr>
+              <tr>
+                <td>Diploma in Hotel &amp; Hospitality Management</td>
+                <td>3 Years</td>
+                <td>₹1,50,000</td>
+                <td>Class 10 passed</td>
+              </tr>
+              <tr>
+                <td>Advance Diploma in Hotel &amp; Hospitality Management</td>
+                <td>2 Years</td>
+                <td>₹1,10,000</td>
+                <td>Class 10 passed</td>
+              </tr>
+              <tr>
+                <td>Advance Certificate Course in Hotel Management</td>
+                <td>1 Year</td>
+                <td>₹65,000</td>
+                <td>Class 10 passed or appeared</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="fees-summary__note">Scroll down for the full 4-Year Honours payment schedule and available scholarships.</p>
         </div>
 
         <div class="fees-layout">
@@ -1497,7 +1647,7 @@
             <h3 class="apply-thankyou__title">Thank you, <span id="thankyou-name">there</span>!</h3>
             <p class="apply-thankyou__body">A counsellor will call you within 5 minutes. Meanwhile:</p>
             <div class="apply-thankyou__actions">
-              <button class="btn btn--gold" id="brochure-trigger-thankyou">Download the Brochure →</button>
+              <button class="btn btn--gold" id="brochure-trigger-thankyou" data-brochure-download>Download the Brochure →</button>
               <!-- [[FLAG: WhatsApp button removed — Gurukul has not provided a WhatsApp number. Reinstate only if client confirms a number is WhatsApp-enabled.]] -->
             </div>
           </div>
@@ -1513,7 +1663,7 @@
   <!-- [[FLAG: Footer banner image is SBIHM-branded — client must supply a Gurukul banner image, or this element should be removed before go-live.]] -->
   <!-- Footer Banner Image -->
   <div class="footer-banner">
-    <img src="assets/images/sbihm_FooterBanner_all.jpg.jpeg" alt="Gurukul Management Studies Footer Banner" width="100%" loading="lazy">
+    <img src="assets/campus/academics-11.jpg" alt="Gurukul Management Studies Footer Banner" width="100%" loading="lazy">
   </div>
 
   <!-- CTA Banner -->
@@ -1532,7 +1682,7 @@
 
           <div class="footer-col footer-col--brand">
             <a href="#" aria-label="Gurukul Management Studies Home">
-              <img src="assets/campus/campus-07.jpg" alt="Gurukul Management Studies"
+              <img src="assets/images/gurukul_logo.png" alt="Gurukul Management Studies"
                 width="200" height="60" loading="lazy">
             </a>
             <p class="footer-col__tagline">Industry-aligned Hotel &amp; Hospitality Management education affiliated to MAKAUT.</p>

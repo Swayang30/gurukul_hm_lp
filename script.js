@@ -94,7 +94,7 @@ async function sendEmailNotification(formDataObj, formName) {
   const mobileBrochureTrigger = $('#brochure-trigger-mobile');
   mobileBrochureTrigger && mobileBrochureTrigger.addEventListener('click', () => {
     closeDrawer();
-    openBrochureModal();
+    handleBrochureDownloadClick();
   });
 
   document.addEventListener('keydown', e => {
@@ -756,7 +756,7 @@ function closeBrochureModal() {
 
   triggers.forEach(sel => {
     const el = $(sel);
-    el && el.addEventListener('click', openBrochureModal);
+    el && el.addEventListener('click', handleBrochureDownloadClick);
   });
 
   const closeBtn = $('#brochure-modal-close');
@@ -851,6 +851,77 @@ function closeBrochureModal() {
     closeBrochureModal();
   });
 })();
+
+/* ─── 8b. Brochure download gate ─────────────────────────────────────────── */
+// All five brochure buttons are wired to handleBrochureDownloadClick.
+// The file downloads only after the hero form has been submitted in this session.
+
+const BROCHURE_PATH = 'assets/campus/Gurukul_brochure.jpeg';
+const BROCHURE_FILENAME = 'Gurukul-Hotel-Hospitality-Brochure.jpeg';
+const BROCHURE_UNLOCK_KEY = 'gurukul_brochure_unlocked';
+const BROCHURE_PENDING_KEY = 'gurukul_brochure_pending';
+
+function isBrochureUnlocked() {
+  return sessionStorage.getItem(BROCHURE_UNLOCK_KEY) === 'true';
+}
+
+function triggerBrochureDownload() {
+  const a = document.createElement('a');
+  a.href = BROCHURE_PATH;
+  a.download = BROCHURE_FILENAME;
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function handleBrochureDownloadClick(e) {
+  if (e) e.preventDefault();
+  if (isBrochureUnlocked()) {
+    triggerBrochureDownload();
+    return;
+  }
+  sessionStorage.setItem(BROCHURE_PENDING_KEY, 'true');
+  const form = document.getElementById('apply-form-hero');
+  if (form) {
+    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    form.classList.add('form-pulse');
+    setTimeout(function () { form.classList.remove('form-pulse'); }, 2500);
+  }
+  showBrochureGateToast('Please fill the form to download the brochure.');
+}
+
+function showBrochureGateToast(message) {
+  let toast = document.getElementById('gurukul-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'gurukul-toast';
+    toast.setAttribute('role', 'status');
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.add('is-visible');
+  clearTimeout(showBrochureGateToast._t);
+  showBrochureGateToast._t = setTimeout(function () {
+    toast.classList.remove('is-visible');
+  }, 3200);
+}
+
+/* Delegated listener for any [data-brochure-download] button added dynamically */
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-brochure-download]');
+  if (btn) handleBrochureDownloadClick(e);
+});
+
+/* ─── 8c. Programme card → hero form pre-select helper ───────────────────── */
+// Called by onclick on the "Apply for this Programme" buttons in Section 5.5.
+// Uses the form's existing ID (apply-form-hero); no duplicate ID needed.
+function scrollToHeroFormAndSelect(value) {
+  const select = document.getElementById('hero-course-variant');
+  if (select) select.value = value;
+  const formContainer = document.getElementById('hero-form-container');
+  if (formContainer) formContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
 
 /* ─── 10. Exit-intent modal ───────────────────────────────────────────────── */
 
@@ -1092,6 +1163,17 @@ function closeBrochureModal() {
         // POSTs. We treat any non-throw as success because the request
         // reached Google's servers. The Sheet write + email happen
         // server-side regardless of what the browser can read back.
+
+        // Brochure gate: hero form success unlocks downloads for this session.
+        if (form.id === 'apply-form-hero') {
+          sessionStorage.setItem(BROCHURE_UNLOCK_KEY, 'true');
+          if (sessionStorage.getItem(BROCHURE_PENDING_KEY) === 'true') {
+            sessionStorage.removeItem(BROCHURE_PENDING_KEY);
+            triggerBrochureDownload();
+            setTimeout(function () { window.location.href = THANK_YOU_URL; }, 900);
+            return;
+          }
+        }
         window.location.href = THANK_YOU_URL;
 
       } catch (error) {
