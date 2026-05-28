@@ -32,14 +32,48 @@ function pushEvent(eventName, params = {}) {
   window.dataLayer.push({ event: eventName, ...params });
 }
 
-/* ─── Webhook Notification Helper ─────────────────────────────────────────── */
-// Posts lead data to Google Apps Script webhook (Sheets + email)
-async function sendEmailNotification(formDataObj, formName) {
-  const WEBHOOK = 'https://script.google.com/macros/s/AKfycbzh_Px44nbxPtRvFY1vdHKBOEdveZvXH4Is3n8NypeXlhKS24MdVRqw8p63gB_UL1Xz/exec';
-  const fd = new FormData();
-  fd.append('form_name', formName);
-  Object.entries(formDataObj).forEach(([k, v]) => fd.append(k, String(v)));
-  await fetch(WEBHOOK, { method: 'POST', body: fd });
+/* ─── Gurukul Unified Lead Capture ────────────────────────────────────────── */
+
+const GURUKUL_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbziDkg_pAYND-NeRrwJ5i8WDQxXXM72KUPpxM3FHpM89K8A9qA6SYwRKb7tyq_l_f4/exec';
+
+function submitGurukulForm(form, handlers) {
+  handlers = handlers || {};
+  const btn = form.querySelector('[type="submit"], button:not([type="button"])');
+  const originalBtnHTML = btn ? btn.innerHTML : '';
+
+  const data = {};
+  form.querySelectorAll('input, select, textarea').forEach(function (el) {
+    if (!el.name) return;
+    if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) return;
+    data[el.name] = el.value;
+  });
+  data.page_url = window.location.href;
+
+  if (btn) { btn.disabled = true; btn.innerHTML = 'Submitting…'; }
+
+  // Content-Type must be text/plain — Apps Script does not answer CORS preflight,
+  // so application/json would fail. text/plain is a simple request that works.
+  fetch(GURUKUL_WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(data)
+  })
+  .then(function (r) { return r.json(); })
+  .then(function (res) {
+    if (res && res.result === 'success') {
+      form.reset();
+      if (typeof handlers.onSuccess === 'function') handlers.onSuccess();
+    } else {
+      throw new Error((res && res.message) || 'Submission failed');
+    }
+  })
+  .catch(function (err) {
+    if (typeof handlers.onError === 'function') handlers.onError(err);
+    else alert('Sorry, something went wrong. Please call +91-9830227324 or try again.');
+  })
+  .finally(function () {
+    if (btn) { btn.disabled = false; btn.innerHTML = originalBtnHTML; }
+  });
 }
 
 /* ─── 1. Sticky header shadow ─────────────────────────────────────────────── */
@@ -353,57 +387,49 @@ async function sendEmailNotification(formDataObj, formName) {
   });
 })();
 
-/* ─── 7. Lead form validation + submission ────────────────────────────────── */
+/* ─── 7. Footer lead form (Contact / Apply section) ──────────────────────── */
 
 (function initLeadForm() {
-  const form = $('#apply-form');
-  const submitBtn = $('#submit-btn');
+  const form = $('#apply-form-footer');
   const formWrap = $('#apply-form-wrap');
   const thankyou = $('#apply-thankyou');
-  const nameField = thankyou && $('#thankyou-name', thankyou);
+  const thankyouName = $('#thankyou-name');
   const errBanner = $('#form-error-message');
 
   if (!form) return;
 
   const validators = {
-    name: v => v.trim().length >= 2 ? null : 'Please enter your full name.',
+    name:  v => v.trim().length >= 2 ? null : 'Please enter your full name.',
     phone: v => /^[6-9][0-9]{9}$/.test(v.replace(/\s/g, '')) ? null : 'Please enter a valid 10-digit Indian mobile number.',
     email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? null : 'Please enter a valid email address.',
   };
 
-  function validateField(fieldName, value) {
-    return validators[fieldName] ? validators[fieldName](value) : null;
-  }
-
-  function showFieldError(input, message) {
-    const errId = input.id ? `error-${input.name}` : null;
-    const errEl = errId ? $(`#${errId}`) : null;
-    input.classList.add('error');
-    input.setAttribute('aria-invalid', 'true');
+  function showFieldError(name, message) {
+    const input = form.querySelector(`[name="${name}"]`);
+    const errEl = $(`#error-${name}`);
+    if (input) { input.classList.add('error'); input.setAttribute('aria-invalid', 'true'); }
     if (errEl) errEl.textContent = message;
   }
 
-  function clearFieldError(input) {
-    const errId = input.id ? `error-${input.name}` : null;
-    const errEl = errId ? $(`#${errId}`) : null;
-    input.classList.remove('error');
-    input.removeAttribute('aria-invalid');
+  function clearFieldError(name) {
+    const input = form.querySelector(`[name="${name}"]`);
+    const errEl = $(`#error-${name}`);
+    if (input) { input.classList.remove('error'); input.removeAttribute('aria-invalid'); }
     if (errEl) errEl.textContent = '';
   }
 
   /* Blur-time validation */
   $$('input, select', form).forEach(input => {
+    if (!input.name || input.type === 'radio' || input.type === 'checkbox' || input.type === 'hidden') return;
     input.addEventListener('blur', () => {
-      if (!input.name || input.type === 'radio' || input.type === 'checkbox') return;
-      const err = validateField(input.name, input.value);
-      err ? showFieldError(input, err) : clearFieldError(input);
+      if (!validators[input.name]) return;
+      const err = validators[input.name](input.value);
+      err ? showFieldError(input.name, err) : clearFieldError(input.name);
     });
-
     input.addEventListener('input', () => {
-      if (input.classList.contains('error')) {
-        const err = validateField(input.name, input.value);
-        err ? showFieldError(input, err) : clearFieldError(input);
-      }
+      if (!input.classList.contains('error') || !validators[input.name]) return;
+      const err = validators[input.name](input.value);
+      err ? showFieldError(input.name, err) : clearFieldError(input.name);
     });
   });
 
@@ -414,19 +440,18 @@ async function sendEmailNotification(formDataObj, formName) {
 
   function validateAll() {
     let valid = true;
-    const errors = [];
+    let firstInvalid = null;
 
     ['name', 'phone', 'email'].forEach(name => {
       const input = form.querySelector(`[name="${name}"]`);
       if (!input) return;
-      const err = validateField(name, input.value);
+      const err = validators[name](input.value);
       if (err) {
-        showFieldError(input, err);
-        if (valid) { input.focus(); }
+        showFieldError(name, err);
+        if (!firstInvalid) firstInvalid = input;
         valid = false;
-        errors.push(err);
       } else {
-        clearFieldError(input);
+        clearFieldError(name);
       }
     });
 
@@ -434,142 +459,104 @@ async function sendEmailNotification(formDataObj, formName) {
       const errEl = $('#error-campus');
       if (errEl) errEl.textContent = 'Please select a preferred campus.';
       valid = false;
-      errors.push('Please select a campus.');
+      if (!firstInvalid) firstInvalid = form.querySelector('input[name="campus"]');
     } else {
       const errEl = $('#error-campus');
       if (errEl) errEl.textContent = '';
     }
 
+    if (firstInvalid) firstInvalid.focus();
     return valid;
   }
 
-  function setButtonLoading(loading) {
-    submitBtn.disabled = loading;
-    submitBtn.textContent = loading ? 'Submitting…' : 'Apply Now & Get Brochure →';
-  }
-
-  function showError(message) {
+  function showBannerError(message) {
     if (!errBanner) return;
     errBanner.textContent = message;
     errBanner.removeAttribute('hidden');
     errBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
-  function hideError() {
+  function hideBannerError() {
     if (!errBanner) return;
     errBanner.setAttribute('hidden', '');
     errBanner.textContent = '';
   }
 
-  /* Check honeypot */
   function isBot() {
     const hp = form.querySelector('#hp-website');
     return hp && hp.value.length > 0;
   }
 
-  form.addEventListener('submit', async e => {
+  form.addEventListener('submit', function (e) {
     e.preventDefault();
-    hideError();
-
-    if (isBot()) {
-      /* Silently succeed for bots */
-      setButtonLoading(true);
-      return;
-    }
-
+    hideBannerError();
+    if (isBot()) return;
     if (!validateAll()) return;
 
-    const formData = {
-      name: form.querySelector('[name="name"]').value.trim(),
-      phone: form.querySelector('[name="phone"]').value.trim(),
-      email: form.querySelector('[name="email"]').value.trim(),
-      campus: getCampusValue(),
-      source: form.querySelector('[name="source"]').value || 'not_specified',
-      whatsapp_optin: form.querySelector('#field-whatsapp-optin')?.checked ?? false,
-      course: 'BHM',
-      timestamp: new Date().toISOString(),
-    };
-
-    console.log('[SBIHM Lead Form]', formData);
-
-    setButtonLoading(true);
-
-    try {
-      await sendEmailNotification(formData, 'Main Apply Form');
-
-      /* Push GTM event */
-      pushEvent('lead_submit', {
-        course: 'BHM',
-        campus: formData.campus,
-        source: formData.source,
-      });
-
-      /* Redirect to thank-you page */
-      window.location.href = 'thankyou.html';
-
-    } catch (err) {
-      setButtonLoading(false);
-      showError('Something went wrong. Please try again or WhatsApp us directly at +91 7003872527.');
-    }
+    submitGurukulForm(form, {
+      onSuccess: function () {
+        pushEvent('lead_submit', { course: 'HHM', form_type: 'footer' });
+        window.location.href = 'thankyou.html';
+      },
+      onError: function () {
+        showBannerError('Something went wrong. Please try again or call +91-9830227324.');
+      }
+    });
   });
 })();
 
-/* ─── 7b. Hero Enquiry Form (in-hero form) ────────────────────────────────── */
+/* ─── 7b. Hero Enquiry Form ───────────────────────────────────────────────── */
 
 (function initHeroForm() {
-  const form = $('#hero-enquiry-form');
-  const submitBtn = $('#hf-submit-btn');
-  const formContainer = $('#hero-form-container');
+  const form = $('#apply-form-hero');
   const successEl = $('#hero-form-success');
 
   if (!form) return;
 
   /* ── Validators ── */
   const validators = {
-    fullname: v => v.trim().length >= 2 ? null : 'Please enter your full name.',
-    email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? null : 'Please enter a valid email address.',
-    phone: v => /^[6-9][0-9]{9}$/.test(v.replace(/\s/g, '')) ? null : 'Enter a valid 10-digit mobile number.',
+    name:           v => v.trim().length >= 2 ? null : 'Please enter your full name.',
+    email:          v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? null : 'Please enter a valid email address.',
+    phone:          v => /^[6-9][0-9]{9}$/.test(v.replace(/\s/g, '')) ? null : 'Enter a valid 10-digit mobile number.',
+    course_variant: v => v ? null : 'Please select a programme.',
   };
 
-  /* ── Helpers ── */
-  function setError(groupId, message) {
-    const group = $(`#${groupId}`);
-    const errEl = $(`#err-${groupId.replace('field-', '')}`);
+  const fieldGroups = {
+    name:           'field-fullname',
+    email:          'field-email',
+    phone:          'field-phone',
+    course_variant: 'field-course-variant',
+  };
+
+  /* ── Error helpers ── */
+  function setError(fieldName, message) {
+    const groupId = fieldGroups[fieldName];
+    const group = groupId ? $(`#${groupId}`) : null;
+    const errEl = groupId ? $(`#err-${groupId.replace('field-', '')}`) : null;
     if (group) group.classList.add('hero-form__group--error');
     if (errEl) errEl.textContent = message || '';
   }
 
-  function clearError(groupId) {
-    const group = $(`#${groupId}`);
-    const errEl = $(`#err-${groupId.replace('field-', '')}`);
+  function clearError(fieldName) {
+    const groupId = fieldGroups[fieldName];
+    const group = groupId ? $(`#${groupId}`) : null;
+    const errEl = groupId ? $(`#err-${groupId.replace('field-', '')}`) : null;
     if (group) group.classList.remove('hero-form__group--error');
     if (errEl) errEl.textContent = '';
   }
 
-  function validateField(name, value) {
-    return validators[name] ? validators[name](value) : null;
-  }
-
-  function getCampusValues() {
-    return $$('input[name="campus"]:checked', form).map(el => el.value);
-  }
-
   /* ── Blur-time validation ── */
-  $$('input:not([type="checkbox"]), select', form).forEach(input => {
+  $$('input:not([type="hidden"]):not([type="checkbox"]), select', form).forEach(input => {
+    if (!input.name || !validators[input.name]) return;
     input.addEventListener('blur', () => {
-      const name = input.name;
-      const groupId = `field-${name === 'fullname' ? 'fullname' : name}`;
-      const err = validateField(name, input.value);
-      err ? setError(groupId, err) : clearError(groupId);
+      const err = validators[input.name](input.value);
+      err ? setError(input.name, err) : clearError(input.name);
     });
-
     input.addEventListener('input', () => {
-      const name = input.name;
-      const groupId = `field-${name === 'fullname' ? 'fullname' : name}`;
-      const group = $(`#${groupId}`);
+      const group = $(`#${fieldGroups[input.name]}`);
       if (group && group.classList.contains('hero-form__group--error')) {
-        const err = validateField(name, input.value);
-        err ? setError(groupId, err) : clearError(groupId);
+        const err = validators[input.name](input.value);
+        err ? setError(input.name, err) : clearError(input.name);
       }
     });
   });
@@ -582,114 +569,38 @@ async function sendEmailNotification(formDataObj, formName) {
     });
   }
 
-  /* Campus checkboxes — clear error when any is checked */
-  $$('input[name="campus"]', form).forEach(cb => {
-    cb.addEventListener('change', () => {
-      if (getCampusValues().length > 0) {
-        clearError('field-campus');
-      }
-    });
-  });
-
-  /* WhatsApp checkbox — clear error when checked */
-  const waCheckbox = $('#hf-whatsapp');
-  if (waCheckbox) {
-    waCheckbox.addEventListener('change', () => {
-      if (waCheckbox.checked) clearError('field-whatsapp');
-    });
-  }
-
   /* ── Full validation ── */
   function validateAll() {
     let firstInvalid = null;
     let valid = true;
 
-    /* Text/select fields */
-    const fieldMap = [
-      { name: 'fullname', group: 'field-fullname' },
-      { name: 'email', group: 'field-email' },
-      { name: 'phone', group: 'field-phone' },
-    ];
-
-    fieldMap.forEach(({ name, group }) => {
+    ['name', 'email', 'phone', 'course_variant'].forEach(name => {
       const input = form.querySelector(`[name="${name}"]`);
       if (!input) return;
-      const err = validateField(name, input.value);
+      const err = validators[name](input.value);
       if (err) {
-        setError(group, err);
+        setError(name, err);
         if (!firstInvalid) firstInvalid = input;
         valid = false;
       } else {
-        clearError(group);
+        clearError(name);
       }
     });
-
-    /* Campus (at least one checkbox) */
-    if (getCampusValues().length === 0) {
-      setError('field-campus', 'Please select at least one campus.');
-      valid = false;
-      if (!firstInvalid) firstInvalid = form.querySelector('input[name="campus"]');
-    } else {
-      clearError('field-campus');
-    }
-
-    /* WhatsApp opt-in */
-    if (!waCheckbox || !waCheckbox.checked) {
-      setError('field-whatsapp', 'Please agree to receive updates on WhatsApp.');
-      valid = false;
-      if (!firstInvalid) firstInvalid = waCheckbox;
-    } else {
-      clearError('field-whatsapp');
-    }
 
     if (firstInvalid) firstInvalid.focus();
     return valid;
   }
 
-  /* ── Submit ── */
-  form.addEventListener('submit', async e => {
-    e.preventDefault();
+  /* ── Toast helpers ── */
+  function showToast() {
+    if (!successEl) return;
+    successEl.removeAttribute('hidden');
+    successEl.classList.remove('toast--dismissing');
+    const progressBar = successEl.querySelector('.success-toast__progress');
+    if (progressBar) progressBar.style.animationPlayState = 'running';
+    window.__toastTimer = setTimeout(() => dismissToast(), 6000);
+  }
 
-    if (!validateAll()) return;
-
-    /* Collect data */
-    const formData = {
-      fullname: form.querySelector('[name="fullname"]').value.trim(),
-      email: form.querySelector('[name="email"]').value.trim(),
-      phone: form.querySelector('[name="phone"]').value.trim(),
-      campus: getCampusValues().join(', '),
-      whatsapp_optin: true,
-      course: 'BHM',
-      source: 'hero_form',
-      timestamp: new Date().toISOString(),
-    };
-
-    console.log('[SBIHM Hero Form]', formData);
-
-    /* Loading state */
-    submitBtn.classList.add('hero-form__submit--loading');
-    submitBtn.disabled = true;
-
-    try {
-      await sendEmailNotification(formData, 'Hero Enquiry Form');
-
-      /* Push GTM event */
-      pushEvent('hero_lead_submit', {
-        course: 'BHM',
-        campus: formData.campus,
-      });
-
-      /* Redirect to thank-you page */
-      window.location.href = 'thankyou.html';
-
-    } catch (err) {
-      submitBtn.classList.remove('hero-form__submit--loading');
-      submitBtn.disabled = false;
-      alert('Something went wrong. Please try again or WhatsApp us at +91 7003872527.');
-    }
-  });
-
-  /* ── Toast dismiss logic ── */
   function dismissToast() {
     if (!successEl || successEl.hasAttribute('hidden')) return;
     successEl.classList.add('toast--dismissing');
@@ -707,20 +618,38 @@ async function sendEmailNotification(formDataObj, formName) {
     });
   }
 
-  /* Pause auto-dismiss on hover */
   if (successEl) {
     successEl.addEventListener('mouseenter', () => {
       clearTimeout(window.__toastTimer);
       const progressBar = successEl.querySelector('.success-toast__progress');
       if (progressBar) progressBar.style.animationPlayState = 'paused';
     });
-
     successEl.addEventListener('mouseleave', () => {
       const progressBar = successEl.querySelector('.success-toast__progress');
       if (progressBar) progressBar.style.animationPlayState = 'running';
       window.__toastTimer = setTimeout(() => dismissToast(), 4000);
     });
   }
+
+  /* ── Submit ── */
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!validateAll()) return;
+
+    submitGurukulForm(form, {
+      onSuccess: function () {
+        pushEvent('hero_lead_submit', { course: 'HHM' });
+        sessionStorage.setItem(BROCHURE_UNLOCK_KEY, 'true');
+        if (sessionStorage.getItem(BROCHURE_PENDING_KEY) === 'true') {
+          sessionStorage.removeItem(BROCHURE_PENDING_KEY);
+          triggerBrochureDownload();
+          setTimeout(function () { window.location.href = 'thankyou.html'; }, 900);
+        } else {
+          window.location.href = 'thankyou.html';
+        }
+      }
+    });
+  });
 })();
 
 /* ─── 8. Brochure download modal ──────────────────────────────────────────── */
@@ -773,82 +702,54 @@ function closeBrochureModal() {
 
   if (!form) return;
 
-  form.addEventListener('submit', async e => {
+  form.addEventListener('submit', function (e) {
     e.preventDefault();
 
     const nameEl = $('#brochure-name');
     const phoneEl = $('#brochure-phone');
     const emailEl = $('#brochure-email');
-
     let valid = true;
 
     if (!nameEl.value.trim()) {
-      $(`#brochure-error-name`).textContent = 'Please enter your name.';
+      $('#brochure-error-name').textContent = 'Please enter your name.';
       nameEl.classList.add('error');
       valid = false;
     } else {
-      $(`#brochure-error-name`).textContent = '';
+      $('#brochure-error-name').textContent = '';
       nameEl.classList.remove('error');
     }
 
     if (!/^[6-9][0-9]{9}$/.test(phoneEl.value.replace(/\s/g, ''))) {
-      $(`#brochure-error-phone`).textContent = 'Please enter a valid 10-digit mobile number.';
+      $('#brochure-error-phone').textContent = 'Please enter a valid 10-digit mobile number.';
       phoneEl.classList.add('error');
       valid = false;
     } else {
-      $(`#brochure-error-phone`).textContent = '';
+      $('#brochure-error-phone').textContent = '';
       phoneEl.classList.remove('error');
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())) {
-      $(`#brochure-error-email`).textContent = 'Please enter a valid email address.';
+      $('#brochure-error-email').textContent = 'Please enter a valid email address.';
       emailEl.classList.add('error');
       valid = false;
     } else {
-      $(`#brochure-error-email`).textContent = '';
+      $('#brochure-error-email').textContent = '';
       emailEl.classList.remove('error');
     }
 
     if (!valid) return;
 
-    console.log('[SBIHM Brochure Lead]', {
-      name: nameEl.value.trim(),
-      phone: phoneEl.value.trim(),
-      email: emailEl.value.trim(),
-      course: 'BHM',
+    pushEvent('brochure_download', { course: 'HHM' });
+
+    submitGurukulForm(form, {
+      onSuccess: function () {
+        const link = document.createElement('a');
+        link.href = BROCHURE_PATH;
+        link.download = BROCHURE_FILENAME;
+        link.click();
+        closeBrochureModal();
+      }
     });
-
-    pushEvent('brochure_download', { course: 'BHM' });
-
-    try {
-      const submitBtn = form.querySelector('button[type="submit"]');
-      if (submitBtn) {
-        submitBtn.textContent = 'Sending...';
-        submitBtn.disabled = true;
-      }
-
-      await sendEmailNotification({
-        name: nameEl.value.trim(),
-        phone: phoneEl.value.trim(),
-        email: emailEl.value.trim(),
-        course: 'BHM'
-      }, 'Brochure Download Form');
-
-      if (submitBtn) {
-        submitBtn.textContent = 'Download Brochure ↓';
-        submitBtn.disabled = false;
-      }
-    } catch (err) {
-      console.error(err);
-    }
-
-    // Trigger brochure PDF download
-    const link = document.createElement('a');
-    link.href = 'assets/campus/download.pdf';
-    link.download = 'SBIHM-Brochure-2026-27.pdf';
-    link.click();
-
-    closeBrochureModal();
   });
 })();
 
@@ -977,7 +878,10 @@ function scrollToHeroFormAndSelect(value) {
 
   if (!form) return;
 
-  form.addEventListener('submit', async e => {
+  // Exit-intent modal form is currently commented out in HTML.
+  // When re-enabled, add hidden landing_course + form_type inputs to the form,
+  // then wire submission with submitGurukulForm as below.
+  form.addEventListener('submit', function (e) {
     e.preventDefault();
 
     const nameEl = $('#exit-name');
@@ -985,55 +889,32 @@ function scrollToHeroFormAndSelect(value) {
     let valid = true;
 
     if (!nameEl.value.trim()) {
-      $(`#exit-error-name`).textContent = 'Please enter your name.';
+      $('#exit-error-name').textContent = 'Please enter your name.';
       nameEl.classList.add('error');
       valid = false;
     } else {
-      $(`#exit-error-name`).textContent = '';
+      $('#exit-error-name').textContent = '';
       nameEl.classList.remove('error');
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())) {
-      $(`#exit-error-email`).textContent = 'Please enter a valid email.';
+      $('#exit-error-email').textContent = 'Please enter a valid email.';
       emailEl.classList.add('error');
       valid = false;
     } else {
-      $(`#exit-error-email`).textContent = '';
+      $('#exit-error-email').textContent = '';
       emailEl.classList.remove('error');
     }
 
     if (!valid) return;
 
-    console.log('[SBIHM Exit Intent Lead]', {
-      name: nameEl.value.trim(),
-      email: emailEl.value.trim(),
+    pushEvent('exit_intent_lead', { course: 'HHM' });
+
+    submitGurukulForm(form, {
+      onSuccess: function () {
+        closeExitModal();
+      }
     });
-
-    pushEvent('exit_intent_lead', { course: 'BHM' });
-
-    try {
-      const submitBtn = form.querySelector('button[type="submit"]');
-      if (submitBtn) {
-        submitBtn.textContent = 'Sending...';
-        submitBtn.disabled = true;
-      }
-
-      await sendEmailNotification({
-        name: nameEl.value.trim(),
-        email: emailEl.value.trim(),
-        source: 'Exit Intent'
-      }, 'Exit Intent Form');
-
-      if (submitBtn) {
-        submitBtn.textContent = 'Get the Guide →';
-        submitBtn.disabled = false;
-      }
-    } catch (err) {
-      console.error(err);
-    }
-
-    // Trigger career guide PDF download
-    closeExitModal();
   });
 })();
 
@@ -1114,83 +995,3 @@ function scrollToHeroFormAndSelect(value) {
   sections.forEach(sec => observer.observe(sec));
 })();
 
-// ────────────────────────────────────────────────────────────────
-// SBIHM Lead Capture - Google Apps Script Webhook submission
-// Replaces legacy FormSubmit / PHP mail() flow
-// Deployed: May 2026
-// ────────────────────────────────────────────────────────────────
-(function () {
-  const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzh_Px44nbxPtRvFY1vdHKBOEdveZvXH4Is3n8NypeXlhKS24MdVRqw8p63gB_UL1Xz/exec';
-  const THANK_YOU_URL = 'thankyou.html';
-
-  const forms = document.querySelectorAll('.sbihm-lead-form');
-
-  forms.forEach(function (form) {
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault();
-
-      const submitBtn = form.querySelector(
-        'button[type="submit"], input[type="submit"]'
-      );
-      const originalLabel = submitBtn
-        ? (submitBtn.tagName === 'INPUT' ? submitBtn.value : submitBtn.textContent)
-        : null;
-
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        if (submitBtn.tagName === 'INPUT') {
-          submitBtn.value = 'Submitting...';
-        } else {
-          submitBtn.textContent = 'Submitting...';
-        }
-      }
-
-      const formData = new FormData(form);
-      formData.append('page', window.location.href);
-      formData.append('form_id', form.id || 'unknown');
-      formData.append('submitted_at', new Date().toISOString());
-
-      try {
-        await fetch(WEBHOOK_URL, {
-          method: 'POST',
-          body: formData
-          // Note: do NOT set Content-Type header — FormData sets the
-          // correct multipart boundary automatically. Setting it
-          // manually breaks the request.
-        });
-
-        // Apps Script web apps return opaque responses to cross-origin
-        // POSTs. We treat any non-throw as success because the request
-        // reached Google's servers. The Sheet write + email happen
-        // server-side regardless of what the browser can read back.
-
-        // Brochure gate: hero form success unlocks downloads for this session.
-        if (form.id === 'apply-form-hero') {
-          sessionStorage.setItem(BROCHURE_UNLOCK_KEY, 'true');
-          if (sessionStorage.getItem(BROCHURE_PENDING_KEY) === 'true') {
-            sessionStorage.removeItem(BROCHURE_PENDING_KEY);
-            triggerBrochureDownload();
-            setTimeout(function () { window.location.href = THANK_YOU_URL; }, 900);
-            return;
-          }
-        }
-        window.location.href = THANK_YOU_URL;
-
-      } catch (error) {
-        console.error('SBIHM form submission error:', error);
-        alert(
-          'Sorry, the form could not be submitted right now. ' +
-          'Please call our admissions team or try again in a moment.'
-        );
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          if (submitBtn.tagName === 'INPUT') {
-            submitBtn.value = originalLabel;
-          } else {
-            submitBtn.textContent = originalLabel;
-          }
-        }
-      }
-    });
-  });
-})();

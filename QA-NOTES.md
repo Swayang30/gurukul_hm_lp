@@ -11,8 +11,8 @@ Generated: 2026-05-27 | Conversion from SBIHM BHM landing page
 | 1 | HEAD / canonical | `[[FLAG: canonical URL]]` (line ~21) | Final Gurukul landing-page domain. Placeholder: `https://gurukulmanagementstudies.in/hotel-hospitality-management/` |
 | 2 | HEAD / og:image | `[[FLAG: og:image URL]]` | Gurukul OG image file URL |
 | 3 | HEAD / og:url | `[[FLAG: og:url]]` | Final Gurukul landing-page URL |
-| 4 | Utility Bar / Hero / Apply / Footer | WhatsApp links removed | Confirm whether +91-9830227324 or 8240842519 is WhatsApp-enabled; supply number to reinstate WhatsApp buttons |
-| 5 | Hero form (hero) | `[[FLAG: Form webhook]]` | Gurukul Google Apps Script / webhook endpoint to receive hero form submissions |
+| ~~4~~ | ~~Utility Bar / Hero / Apply / Footer~~ | ~~WhatsApp links removed~~ | **RESOLVED 2026-05-28** — WhatsApp number confirmed as +91-9830390636. Buttons reinstated in utility bar, FAB, apply section, thank-you state, and footer. |
+| ~~5~~ | ~~Hero form (hero)~~ | ~~`[[FLAG: Form webhook]]`~~ | **RESOLVED 2026-05-28** — Unified Gurukul webhook deployed and wired to all forms via `submitGurukulForm`. |
 | 6 | Programme — Eligibility | `[[FLAG: Eligibility — client to confirm]]` | Eligibility criteria for admission (Gurukul has not published these; do NOT copy SBIHM's "10+2 50%") |
 | 7 | Awards — Card 4 | `[[FLAG: Award title required from client]]` | Title/name of the award corresponding to `Award4.png` |
 | 8 | Campus — Map links | `[[FLAG: Google Maps URLs]]` (×2) | Correct Google Maps pins for Main Campus (Kankinara) and City Office (Bidhannagar) |
@@ -84,8 +84,8 @@ Generated: 2026-05-27 | Conversion from SBIHM BHM landing page
 | # | Item | Detail |
 |---|------|--------|
 | 1 | **Final domain** | Replace placeholder `https://gurukulmanagementstudies.in/` in canonical, og:url, og:image, JSON-LD |
-| 2 | **Form webhook endpoint** | Both `apply-form-hero` and `apply-form-footer` still post to SBIHM's Apps Script endpoint — client must supply Gurukul's Google Sheet/webhook URL |
-| 3 | **WhatsApp number** | Confirm whether +91-9830227324 or 8240842519 is WhatsApp-enabled; if yes, reinstate WhatsApp buttons with correct wa.me link |
+| ~~2~~ | ~~**Form webhook endpoint**~~ | **RESOLVED 2026-05-28** — All three forms (hero, contact, brochure) wired to unified Gurukul Apps Script webhook via `submitGurukulForm`. |
+| ~~3~~ | ~~**WhatsApp number**~~ | **RESOLVED 2026-05-28** — WhatsApp: +91-9830390636. Links added to utility bar, FAB (replaced phone FAB), apply section, thank-you state, and footer. |
 | 4 | **GTM container ID** | Replace `GTM-5KFQNGBB` (SBIHM's) with Gurukul's own GTM ID |
 | 5 | **Social media URLs** | Supply Facebook, Instagram, LinkedIn, YouTube URLs for footer social icons (currently `href="#"`) |
 | 6 | **Orientation / class-start dates** | Step 5 of admission process currently flagged — supply 2026–27 dates |
