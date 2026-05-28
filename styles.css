@@ -1979,127 +1979,129 @@ button {
   }
 }
 
-/* Curriculum Timeline */
+/* Year Cards Grid */
 
-.curriculum-timeline {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+.year-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
   margin-bottom: 3rem;
 }
 
-.curriculum-timeline::before {
-  content: "";
-  position: absolute;
-  left: 22px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--sbihm-line);
-  z-index: 0;
+@media (min-width: 640px) {
+  .year-cards-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-.curriculum-year {
+@media (min-width: 1280px) {
+  .year-cards-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.year-card {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 16px rgba(26, 26, 26, 0.09);
   display: flex;
-  gap: 1.25rem;
-  position: relative;
-  padding-bottom: 2rem;
-}
-
-.curriculum-year:last-child {
-  padding-bottom: 0;
-}
-
-.curriculum-year__marker {
-  flex-shrink: 0;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
+  flex-direction: column;
   background: var(--sbihm-paper);
-  border: 3px solid var(--sbihm-red);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.year-card:hover {
+  box-shadow: 0 8px 30px rgba(26, 26, 26, 0.14);
+  transform: translateY(-3px);
+}
+
+.year-card__header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 1;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.year-card--1 .year-card__header { background: var(--sbihm-red-soft); }
+.year-card--2 .year-card__header { background: var(--sbihm-red); }
+.year-card--3 .year-card__header { background: var(--sbihm-charcoal); }
+.year-card--4 .year-card__header { background: var(--sbihm-gold); }
+
+.year-card__num {
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 2.75rem;
+  text-align: center;
+}
+
+.year-card--1 .year-card__num { color: var(--sbihm-red); }
+.year-card--2 .year-card__num { color: #fff; }
+.year-card--3 .year-card__num { color: var(--sbihm-gold); }
+.year-card--4 .year-card__num { color: var(--sbihm-black); }
+
+.year-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.year-card__title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.year-card--1 .year-card__title { color: var(--sbihm-black); }
+.year-card--2 .year-card__title { color: #fff; }
+.year-card--3 .year-card__title { color: #fff; }
+.year-card--4 .year-card__title { color: var(--sbihm-black); }
+
+.year-card__sems {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.year-card--1 .year-card__sems { color: var(--sbihm-mute); }
+.year-card--2 .year-card__sems { color: rgba(255, 255, 255, 0.72); }
+.year-card--3 .year-card__sems { color: rgba(255, 255, 255, 0.6); }
+.year-card--4 .year-card__sems { color: rgba(26, 26, 26, 0.6); }
+
+.year-card__subjects {
+  list-style: none;
+  padding: 1.25rem 1.5rem;
+  margin: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  border-top: 1px solid var(--sbihm-line);
+}
+
+.year-card__subjects li {
+  font-size: 0.875rem;
+  color: var(--sbihm-charcoal);
+  line-height: 1.5;
+  padding-left: 1.1rem;
   position: relative;
 }
 
-.curriculum-year__marker--highlight {
-  background: var(--sbihm-red);
-  border-color: var(--sbihm-red);
-}
-
-.curriculum-year__marker--highlight .curriculum-year__number {
-  color: white;
-}
-
-.curriculum-year__marker--gold {
-  background: var(--sbihm-gold);
-  border-color: var(--sbihm-gold);
-}
-
-.curriculum-year__number {
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-  font-weight: 800;
+.year-card__subjects li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  font-weight: 700;
   color: var(--sbihm-red);
 }
 
-.curriculum-year__content {
-  padding-top: 0.6rem;
-  flex: 1;
-}
-
-.curriculum-year__title {
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--sbihm-black);
-  margin-bottom: 0.4rem;
-}
-
-.curriculum-year__desc {
-  font-size: 0.92rem;
-  color: var(--sbihm-charcoal);
-  line-height: 1.65;
-}
-
-/* Horizontal timeline on desktop */
-@media (min-width: 1024px) {
-  .curriculum-timeline {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 0;
-  }
-
-  .curriculum-timeline::before {
-    left: 0;
-    right: 0;
-    top: 22px;
-    bottom: auto;
-    width: auto;
-    height: 2px;
-  }
-
-  .curriculum-year {
-    flex: 1;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding-bottom: 0;
-    padding-top: 0;
-  }
-
-  .curriculum-year__content {
-    padding-top: 1rem;
-  }
-
-  .curriculum-timeline::before {
-    top: 22px;
-    left: 5%;
-    right: 5%;
-  }
+.year-card--4 .year-card__subjects li::before {
+  color: var(--sbihm-gold);
 }
 
 /* Skills pills */
